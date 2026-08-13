@@ -474,7 +474,7 @@ function scoreComment(score){
 function openLundao(){
   const topics = [
     '向 AI 描述：帮我把"校园植树节"写成一首五言绝句，要有春日和团结的意境。',
-    '向 AI 描述：帮我制定一份"一周减糖饮食"计划，要适合初中生且每天不重样。',
+    '向 AI 描述：帮我制定一份"一周减糖饮食"计划，要适合学生且每天不重样。',
     '向 AI 描述：用生活比喻解释"什么是神经网络"，让初学者也能听懂。'
   ];
   const topic = topics[Math.floor(Math.random()*topics.length)];
