@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="ink">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>共创录 · 初中AI素养修行RPG</title>
+  <meta name="description" content="一款水墨修仙 × 像素RPG 风格的初中AI素养修行小游戏" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <!-- ============ 创角卷轴 ============ -->
+  <div id="onboarding" class="onboarding-overlay">
+    <div class="onb-scroll">
+      <div class="scroll-rod top"></div>
+      <div class="onb-inner">
+        <div class="seal-logo">共创录</div>
+        <h1 class="onb-title">初中 AI 素养修行</h1>
+        <p class="onb-sub">执笔为剑，以算入道。请先立道号、择门派。</p>
+
+        <label class="field-label">道号</label>
+        <input id="onb-name" class="ink-input" maxlength="8" placeholder="如：青衫、小策、墨白…" />
+        <div id="onb-name-err" class="field-error"></div>
+
+        <label class="field-label">择一门派</label>
+        <div id="onb-sects" class="sect-grid"></div>
+
+        <div class="onb-avatar-wrap">
+          <canvas id="onb-avatar" width="96" height="96"></canvas>
+          <div id="onb-sect-desc" class="onb-sect-desc"></div>
+        </div>
+
+        <button id="onb-submit" class="btn-brush primary">踏入修行</button>
+      </div>
+      <div class="scroll-rod bottom"></div>
+    </div>
+  </div>
+
+  <!-- ============ 主应用 ============ -->
+  <div id="app" class="app hidden">
+    <!-- 顶部 HUD -->
+    <header class="hud">
+      <div class="hud-left">
+        <span class="hud-avatar" id="hud-avatar"></span>
+        <div class="hud-id">
+          <div class="hud-name" id="hud-name">修行人</div>
+          <div class="hud-realm"><span id="hud-realm">练气</span> · <span id="hud-sect">门派</span></div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="res res-exp" title="修为">
+          <span class="res-ico">修</span>
+          <div class="res-bar"><i id="hud-exp-fill"></i></div>
+          <span class="res-num" id="hud-exp-num">0</span>
+        </div>
+        <div class="res res-spirit" title="灵气">
+          <span class="res-ico spirit">灵</span>
+          <span class="res-num" id="hud-spirit">0</span>
+        </div>
+        <div class="res res-insight" title="顿悟">
+          <span class="res-ico insight">悟</span>
+          <span class="res-num" id="hud-insight">0</span>
+        </div>
+        <button class="hud-menu-btn" id="open-menu" aria-label="菜单">≡</button>
+      </div>
+    </header>
+
+    <!-- 视图容器 -->
+    <main class="main">
+      <section class="view active" id="view-home"></section>
+      <section class="view" id="view-map"></section>
+      <section class="view" id="view-tasks"></section>
+      <section class="view" id="view-skills"></section>
+      <section class="view" id="view-daily"></section>
+      <section class="view" id="view-reading"></section>
+      <section class="view" id="view-library"></section>
+      <section class="view" id="view-community"></section>
+      <section class="view" id="view-achievements"></section>
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav" id="bottom-nav"></nav>
+  </div>
+
+  <!-- ============ 菜单抽屉 ============ -->
+  <div id="menu-drawer" class="drawer hidden">
+    <div class="drawer-mask" id="drawer-mask"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <span class="menu-player-name" id="menu-name">修行人</span>
+        <span class="menu-realm-tag" id="menu-realm">练气</span>
+        <span class="menu-sect-tag" id="menu-sect">门派</span>
+      </div>
+      <div class="drawer-grid" id="drawer-grid"></div>
+      <div class="drawer-settings">
+        <div class="set-row"><span>主题</span>
+          <button class="seg" id="set-theme"><span data-t="ink">水墨</span><span data-t="pixel">像素夜</span></button>
+        </div>
+        <div class="set-row"><span>音效</span>
+          <button class="switch" id="set-sound"><i></i></button>
+        </div>
+        <button class="btn-brush ghost danger" id="btn-reset">重置修行（清档）</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 模态根 ============ -->
+  <div id="modal-root"></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

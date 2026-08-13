@@ -1,0 +1,196 @@
+/* ============================================================
+   components.css —— 各视图 / 弹窗 / RPG 专属样式
+   ============================================================ */
+
+/* ---------- 创角 ---------- */
+.onboarding-overlay {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+  background: var(--bg-grad); padding: 16px; overflow: auto;
+}
+.onb-scroll { width: min(460px, 96vw); animation: pop .4s ease; }
+.onb-inner { background: var(--paper-2); border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 22px 24px 26px; box-shadow: var(--shadow); }
+.onb-title { font-family: var(--font-title); font-size: 28px; margin: 10px 0 4px; text-align: center; }
+.onb-sub { color: var(--ink-3); text-align: center; font-family: var(--font-sub); margin: 0 0 16px; font-size: 14px; }
+.field-label { display: block; font-family: var(--font-sub); font-size: 14px; margin: 12px 0 6px; color: var(--ink-2); }
+.ink-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); outline: none; }
+.ink-input:focus { border-color: var(--vermilion); }
+.field-error { color: var(--vermilion); font-size: 13px; min-height: 16px; margin-top: 4px; }
+.sect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sect-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; background: var(--paper); transition: transform .12s, border-color .15s; position: relative; }
+.sect-card:hover { transform: translateY(-2px); }
+.sect-card.sel { border-color: var(--vermilion); box-shadow: 0 0 0 3px rgba(194,58,43,.15); }
+.sect-card .sect-name { font-family: var(--font-title); font-size: 20px; }
+.sect-card .sect-motto { font-size: 12px; color: var(--ink-3); margin: 4px 0; font-family: var(--font-sub); }
+.sect-card .sect-badge { width: 100%; height: 6px; border-radius: 4px; margin-top: 6px; }
+.sect-card .sect-pick { position: absolute; top: 8px; right: 10px; color: var(--vermilion); font-size: 18px; opacity: 0; }
+.sect-card.sel .sect-pick { opacity: 1; }
+.onb-avatar-wrap { display: flex; gap: 14px; align-items: center; margin: 16px 0; }
+#onb-avatar { width: 96px; height: 96px; border-radius: 12px; image-rendering: pixelated; background: #fff; box-shadow: var(--shadow); flex: none; }
+.onb-sect-desc { font-size: 13px; color: var(--ink-2); font-family: var(--font-sub); line-height: 1.5; }
+#onb-submit { width: 100%; margin-top: 6px; font-size: 18px; padding: 13px; }
+
+/* ---------- 主区域 ---------- */
+.main { flex: 1; overflow-y: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+.view { display: none; padding: 14px 14px 18px; animation: fade .25s ease; }
+.view.active { display: block; }
+
+/* ---------- 主页 ---------- */
+.home-hero { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.realm-card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.realm-card::after { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(201,162,39,.25), transparent 70%); }
+.realm-name { font-family: var(--font-title); font-size: 34px; color: var(--ochre); }
+.realm-label { color: var(--ink-3); font-family: var(--font-sub); }
+.realm-bar { height: 12px; background: var(--paper-3); border-radius: 8px; overflow: hidden; margin-top: 12px; }
+.realm-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ochre), var(--gold)); transition: width .5s; }
+.realm-next { font-size: 13px; color: var(--ink-2); margin-top: 6px; font-family: var(--font-sub); }
+.home-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.stat-box { background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center; }
+.stat-box .num { font-family: var(--font-title); font-size: 26px; color: var(--stone); }
+.stat-box .lab { font-size: 12px; color: var(--ink-3); font-family: var(--font-sub); }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.quick-card { display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 14px; background: var(--paper-2); border: 1px solid var(--line); cursor: pointer; box-shadow: 0 2px 8px rgba(40,30,20,.06); transition: transform .12s; }
+.quick-card:hover { transform: translateY(-2px); }
+.quick-card .q-ico { font-size: 26px; }
+.quick-card .q-t { font-family: var(--font-sub); font-weight: 600; }
+.quick-card .q-d { font-size: 12px; color: var(--ink-3); }
+
+/* ---------- RPG 地图 ---------- */
+#view-map { padding: 0; position: relative; height: 100%; display: none; }
+#view-map.active { display: block; }
+.rpg-wrap { position: relative; width: 100%; height: 100%; background: #0e1626; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+#rpg-canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; touch-action: none; }
+.rpg-hud { position: absolute; left: 12px; top: 12px; background: rgba(20,20,30,.6); color: #f3ead2; padding: 8px 12px; border-radius: 10px; font-family: var(--font-sub); font-size: 13px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.15); }
+.rpg-hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: rgba(20,20,30,.6); color: #f3ead2; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-family: var(--font-sub); border: 1px solid rgba(255,255,255,.15); }
+.rpg-back { position: absolute; right: 12px; top: 12px; background: rgba(20,20,30,.6); color: #f3ead2; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-family: var(--font-sub); font-size: 13px; }
+.rpg-prompt { position: absolute; left: 50%; bottom: 56px; transform: translateX(-50%); background: var(--gold); color: #2a1d00; padding: 8px 18px; border-radius: 20px; font-family: var(--font-sub); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.4); animation: fade .2s; }
+.joystick { position: absolute; left: 18px; bottom: 24px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); touch-action: none; display: none; }
+.joystick .stick { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(243,234,210,.85); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+.rpg-interact-btn { position: absolute; right: 18px; bottom: 30px; width: 64px; height: 64px; border-radius: 50%; background: var(--gold); color: #2a1d00; border: none; font-family: var(--font-title); font-size: 22px; display: none; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+
+/* 对话/站点弹窗（RPG 内） */
+.dlg-box { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(640px, 94%); background: var(--paper-2); border: 3px solid var(--ink); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: none; }
+.dlg-box.show { display: block; animation: pop .25s; }
+.dlg-speaker { font-family: var(--font-title); font-size: 20px; color: var(--vermilion); margin-bottom: 6px; }
+.dlg-text { font-family: var(--font-body); line-height: 1.7; font-size: 15px; }
+.dlg-choices { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.dlg-choice { text-align: left; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; font-family: var(--font-sub); }
+.dlg-choice:hover { background: rgba(194,58,43,.07); }
+
+/* ---------- 任务 ---------- */
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; }
+.tab { flex: none; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--line); background: var(--paper-2); cursor: pointer; font-family: var(--font-sub); font-size: 14px; color: var(--ink-3); }
+.tab.active { background: var(--vermilion); color: #fff; border-color: var(--vermilion); }
+.task-list { display: flex; flex-direction: column; gap: 12px; }
+.task-item { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(40,30,20,.06); }
+.task-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.task-name { font-family: var(--font-sub); font-weight: 600; font-size: 16px; }
+.task-cat { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--stone); color: #fff; }
+.task-cat.日常 { background: var(--jade); } .task-cat.支线 { background: var(--ochre); }
+.task-desc { color: var(--ink-2); font-size: 14px; margin: 8px 0 10px; line-height: 1.6; }
+.task-reward { font-size: 13px; color: var(--vermilion); font-family: var(--font-sub); margin-bottom: 10px; }
+.task-btn { font-size: 14px; padding: 8px 16px; }
+.task-btn.done { background: var(--paper-3); color: var(--ink-3); box-shadow: none; }
+
+/* ---------- 技能树 ---------- */
+.dim-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 12px; }
+.skill-node { background: var(--paper-2); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; position: relative; transition: transform .12s; }
+.skill-node.locked { opacity: .6; }
+.skill-node.unlocked { border-color: var(--jade); box-shadow: 0 0 0 3px rgba(90,138,106,.15); }
+.skill-node .sn-name { font-family: var(--font-sub); font-weight: 600; font-size: 16px; }
+.skill-node .sn-desc { font-size: 13px; color: var(--ink-2); margin: 6px 0 8px; line-height: 1.5; }
+.skill-node .sn-bonus { font-size: 12px; color: var(--jade); font-family: var(--font-sub); }
+.skill-node .sn-cost { font-size: 13px; color: var(--vermilion); font-family: var(--font-sub); margin-top: 6px; }
+.skill-node .sn-seal { position: absolute; top: 10px; right: 10px; font-family: var(--font-title); color: var(--jade); font-size: 18px; opacity: 0; }
+.skill-node.unlocked .sn-seal { opacity: 1; }
+.skill-node .sn-unlock { width: 100%; margin-top: 8px; font-size: 14px; padding: 8px; }
+
+/* ---------- 每日一问 / 答题通用 ---------- */
+.question-scroll { background: var(--paper-2); border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); padding: 18px; }
+.q-seal { display: inline-block; background: var(--vermilion); color: #fff; font-family: var(--font-title); padding: 4px 10px; border-radius: 8px; transform: rotate(-3deg); margin-bottom: 10px; }
+.q-title { font-family: var(--font-title); font-size: 24px; margin: 0 0 4px; }
+.q-sub { color: var(--ink-3); font-family: var(--font-sub); margin: 0 0 14px; }
+.q-text { font-size: 16px; line-height: 1.7; margin-bottom: 14px; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); cursor: pointer; font-family: var(--font-body); font-size: 15px; transition: border-color .15s, background .15s; }
+.q-option:hover { border-color: var(--stone); }
+.q-option .opt-letter { width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--paper-3); display: grid; place-items: center; font-family: var(--font-title); }
+.q-option.correct { border-color: var(--jade); background: rgba(90,138,106,.12); }
+.q-option.correct .opt-letter { background: var(--jade); color: #fff; }
+.q-option.wrong { border-color: var(--vermilion); background: rgba(194,58,43,.1); }
+.q-option.wrong .opt-letter { background: var(--vermilion); color: #fff; }
+.q-option.disabled { pointer-events: none; }
+.result-box { margin-top: 14px; padding: 14px; border-radius: 12px; border: 1px dashed var(--line); }
+.result-title { font-family: var(--font-title); font-size: 22px; margin: 0 0 8px; }
+.result-title.ok { color: var(--jade); } .result-title.no { color: var(--vermilion); }
+.result-explain { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.result-source { margin-top: 8px; font-size: 13px; color: var(--stone); font-family: var(--font-sub); border-left: 3px solid var(--stone); padding-left: 8px; }
+
+/* ---------- 典籍 ---------- */
+.reading-card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(40,30,20,.06); cursor: pointer; transition: transform .12s; }
+.reading-card:hover { transform: translateY(-2px); }
+.rc-head { display: flex; align-items: center; gap: 8px; }
+.rc-cat { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--ochre); color: #fff; }
+.rc-title { font-family: var(--font-title); font-size: 22px; }
+.rc-author { font-size: 12px; color: var(--ink-3); }
+.rc-stars { color: var(--gold); letter-spacing: 2px; margin-left: auto; }
+.rc-read { font-size: 12px; color: var(--jade); font-family: var(--font-sub); }
+
+/* ---------- 文献库 ---------- */
+.lit-card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+.lit-type { font-size: 11px; padding: 2px 8px; border-radius: 12px; color: #fff; }
+.lit-type.course { background: #2c5f7c; } .lit-type.method { background: #5a8a6a; }
+.lit-type.intl { background: #b8860b; } .lit-type.meeting { background: #c23a2b; }
+.lit-type.academic { background: #6f5aa8; } .lit-type.chat { background: #4a8fb0; }
+.lit-title { font-family: var(--font-sub); font-weight: 600; font-size: 16px; margin: 8px 0 4px; }
+.lit-source { font-size: 12px; color: var(--ink-3); }
+.lit-summary { font-size: 14px; color: var(--ink-2); line-height: 1.6; margin-top: 6px; }
+
+/* ---------- 共创 / 排行榜 ---------- */
+.overview { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.ov-box { background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+.ov-num { font-family: var(--font-title); font-size: 28px; color: var(--vermilion); }
+.ov-lab { font-size: 12px; color: var(--ink-3); font-family: var(--font-sub); }
+.chapter { background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.chapter-top { display: flex; justify-content: space-between; font-family: var(--font-sub); }
+.chapter-name { font-weight: 600; }
+.chapter-status { font-size: 12px; }
+.chapter-status.done { color: var(--jade); } .chapter-status.doing { color: var(--ochre); } .chapter-status.todo { color: var(--ink-3); }
+.chapter-bar { height: 8px; background: var(--paper-3); border-radius: 6px; overflow: hidden; margin-top: 8px; }
+.chapter-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--stone), var(--gold)); }
+.lb { background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--font-sub); }
+.lb-row:last-child { border-bottom: none; }
+.lb-row.me { background: rgba(194,58,43,.1); }
+.lb-rank { width: 26px; text-align: center; font-family: var(--font-title); color: var(--ink-3); }
+.lb-rank.top { color: var(--gold); }
+.lb-name { flex: 1; }
+.lb-realm { font-size: 12px; color: var(--ink-3); }
+.lb-exp { color: var(--stone); font-weight: 600; }
+
+/* ---------- 成就 ---------- */
+.ach-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 12px; }
+.ach-card { background: var(--paper-2); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; position: relative; }
+.ach-card.got { border-color: var(--gold); }
+.ach-card .ach-name { font-family: var(--font-sub); font-weight: 600; font-size: 16px; }
+.ach-card .ach-desc { font-size: 13px; color: var(--ink-2); margin: 6px 0; line-height: 1.5; }
+.ach-card .ach-reward { font-size: 12px; color: var(--vermilion); font-family: var(--font-sub); }
+.ach-card .ach-seal { position: absolute; top: 10px; right: 10px; font-family: var(--font-title); color: var(--gold); font-size: 22px; opacity: 0; }
+.ach-card.got .ach-seal { opacity: 1; }
+
+/* ---------- 论道 mini-game ---------- */
+.lundao-area { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.lundao-topic { font-family: var(--font-sub); font-weight: 600; margin-bottom: 8px; }
+.lundao-textarea { width: 100%; min-height: 110px; border-radius: 12px; border: 1.5px solid var(--line); padding: 12px; font-family: var(--font-body); font-size: 15px; resize: vertical; outline: none; background: var(--paper); color: var(--ink); }
+.lundao-textarea:focus { border-color: var(--vermilion); }
+.lundao-score { font-family: var(--font-title); font-size: 30px; color: var(--vermilion); }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 560px) {
+  .page-title { font-size: 24px; }
+  .home-stats, .overview, .ach-stats { grid-template-columns: repeat(3,1fr); }
+  .realm-name { font-size: 28px; }
+  .joystick { display: block; }
+  .rpg-interact-btn { display: block; }
+}
