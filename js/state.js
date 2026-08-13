@@ -26,6 +26,7 @@ function defaultState(){
     daily: { date: '', answered: false, correct: false },
     lundao: { date: '', best: 0 },
     achievements: {},         // id -> true
+    secrets: {},               // 彩蛋点 label -> true（已发现）
     stats: { correct: 0, answered: 0, lundao: 0 },
     settings: { theme: 'ink', sound: true }
   };
@@ -42,6 +43,7 @@ export function load(){
     state = Object.assign(defaultState(), parsed);
     state.settings = Object.assign({ theme:'ink', sound:true }, parsed.settings||{});
     state.stats = Object.assign({ correct:0, answered:0, lundao:0 }, parsed.stats||{});
+    state.secrets = parsed.secrets || {};
     return true;
   } catch(e){
     console.warn('存档损坏，重置', e);
@@ -50,7 +52,7 @@ export function load(){
   }
 }
 
-export function save(){
+export function save(){            // 注意：供 ui.js 在更新 secrets 等后显式持久化
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
   catch(e){ console.warn('保存失败', e); }
 }

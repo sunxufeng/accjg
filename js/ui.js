@@ -5,7 +5,7 @@ import {
   getState, getSect, addExp, addSpirit, addInsight, today,
   answerDaily, recordReading, recordLundao, taskStatus, setTaskStatus,
   unlockSkill, skillBonus, realmName, expToNext, checkAchievements,
-  bus, setSetting, refreshStreak
+  bus, setSetting, refreshStreak, save
 } from './state.js';
 import {
   QUESTIONS, READINGS, LIBRARY, SKILLS, TASKS, SECTS, DIM_META,
@@ -121,6 +121,7 @@ function onInteract(type, data){
     case 'lundao': openLundao(); break;
     case 'skill': renderSkills(); showView('skills'); break;
     case 'npc': openNpc(data); break;
+    case 'secret': openSecret(data); break;
   }
 }
 
@@ -525,6 +526,35 @@ function openNpc(it){
     let i = 0; const txt = m.querySelector('#npc-text'), next = m.querySelector('#npc-next');
     txt.textContent = lines[0];
     next.onclick = () => { i++; if(i < lines.length) txt.textContent = lines[i]; else { closeModal(); toast('与'+it.label+'论道愉快'); } };
+  }});
+}
+
+// ---------- 隐藏彩蛋点 ----------
+const SECRET_LORE = {
+  '隐秘石碑': '碑文漫漶：「凡有所学，皆成性格。」你似有所悟，灵气与修为皆有增益。',
+  '古井': '井水倒映星河，竟照见自己修行的初心。心境澄明，获益良多。',
+  '神秘洞窟': '洞中石壁上刻满前辈修行笔记，字字珠玑，令你灵台清明。',
+  '灵泉': '掬一捧灵泉饮下，周身暖流涌动，修为大进。',
+  '残破经幢': '残幢虽破，偈语犹存：「知之为知之」。恍然间参透数据真伪之理。',
+  '棋盘石': '石上棋局未终，落子声如梵音。你静坐片刻，顿觉思路开阔。',
+  '许愿灯': '点亮一盏许愿灯，愿「AI 向善」。灯焰摇曳，福泽加身。',
+  '星象台': '登台观星，银河垂野。你窥见算法星辰的运转轨迹，灵光乍现。'
+};
+function openSecret(it){
+  const s = getState();
+  const found = !!s.secrets[it.label];
+  const lore = SECRET_LORE[it.label] || '你在此发现一处隐秘之地，心神为之一振。';
+  let body = `<div class="dlg-speaker">✦ ${esc(it.label)}</div>
+    <div class="dlg-text" style="background:var(--paper-2);border:2px solid var(--primary);border-radius:12px;padding:14px">${esc(lore)}</div>`;
+  if(!found){
+    addSpirit(40); addExp(60); s.secrets[it.label] = true; save();
+    body += `<div style="margin-top:10px;color:var(--jade);font-weight:700">初次发现！获得 灵气 +40 · 修为 +60</div>`;
+  } else {
+    body += `<div style="margin-top:10px;color:var(--ink-3)">（此处彩蛋已发现过，不再重复奖励）</div>`;
+  }
+  body += `<div class="dlg-choices"><button class="dlg-choice" id="sec-ok" style="text-align:center">收下 ›</button></div>`;
+  openModal({ title:'神秘地点', bodyHTML:body, onMount(m){
+    m.querySelector('#sec-ok').onclick = () => { closeModal(); renderHUD(); toast(found ? '已探索' : '发现彩蛋！'); };
   }});
 }
 

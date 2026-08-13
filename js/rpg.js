@@ -7,6 +7,7 @@ export function createRPG(container, onInteract){
   const grid = MAP_ROWS.map(r => r.split(''));
   const GW = grid[0].length, GH = grid.length;
   const W = GW * TILE, H = GH * TILE;
+  let viewW = W, viewH = H, camX = 0, camY = 0, dpr = 1;
 
   const canvas = document.createElement('canvas');
   canvas.id = 'rpg-canvas';
@@ -48,10 +49,21 @@ export function createRPG(container, onInteract){
 
   function resize(){
     const cw = wrap.clientWidth, ch = wrap.clientHeight;
-    const scale = Math.min(cw / W, ch / H);
-    canvas.style.width = (W * scale) + 'px';
-    canvas.style.height = (H * scale) + 'px';
-    canvas.width = W; canvas.height = H;
+    dpr = window.devicePixelRatio || 1;
+    viewW = cw; viewH = ch;
+    canvas.style.width = cw + 'px';
+    canvas.style.height = ch + 'px';
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(ch * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function clamp(v, lo, hi){ return v < lo ? lo : v > hi ? hi : v; }
+  function centerCam(instant){
+    const tx = (W <= viewW) ? (W - viewW) / 2 : clamp(player.px + TILE/2 - viewW/2, 0, W - viewW);
+    const ty = (H <= viewH) ? (H - viewH) / 2 : clamp(player.py + TILE/2 - viewH/2, 0, H - viewH);
+    if(instant){ camX = tx; camY = ty; }
+    else { camX += (tx - camX) * 0.18; camY += (ty - camY) * 0.18; }
   }
 
   function walkable(x, y){
@@ -152,6 +164,7 @@ export function createRPG(container, onInteract){
         player.bob = Math.sin(player.t * Math.PI) * 3;
       }
     }
+    centerCam(false);
     // 交互提示
     const ni = nearestInteract();
     currentInteract = ni;
@@ -164,36 +177,52 @@ export function createRPG(container, onInteract){
   function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
 
   function render(){
-    ctx.clearRect(0,0,W,H);
-    // 背景天空
-    const g = ctx.createLinearGradient(0,0,0,H);
+    ctx.clearRect(0,0,viewW,viewH);
+    // 背景天空（铺满视口）
+    const g = ctx.createLinearGradient(0,0,0,viewH);
     g.addColorStop(0, '#1a2a44'); g.addColorStop(.4, '#162840'); g.addColorStop(1, '#0e1626');
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-    // 远山剪影
+    ctx.fillStyle = g; ctx.fillRect(0,0,viewW,viewH);
+    // 远山剪影（视差）
+    const off = -camX * 0.25;
     ctx.fillStyle = 'rgba(20,35,55,.5)';
-    ctx.beginPath(); ctx.moveTo(0,H*.45); ctx.lineTo(W*.2,H*.3); ctx.lineTo(W*.4,H*.38); ctx.lineTo(W*.6,H*.28); ctx.lineTo(W*.8,H*.36); ctx.lineTo(W,H*.42); ctx.lineTo(W,H*.45); ctx.closePath(); ctx.fill();
-    // 瓦片
-    for(let y=0;y<GH;y++) for(let x=0;x<GW;x++){
-      drawTile(grid[y][x], x*TILE, y*TILE);
+    ctx.beginPath();
+    ctx.moveTo(off, viewH*.5);
+    ctx.lineTo(off + viewW*.2, viewH*.34);
+    ctx.lineTo(off + viewW*.4, viewH*.44);
+    ctx.lineTo(off + viewW*.6, viewH*.3);
+    ctx.lineTo(off + viewW*.8, viewH*.42);
+    ctx.lineTo(off + viewW, viewH*.5);
+    ctx.lineTo(off + viewW, viewH*.5); ctx.closePath(); ctx.fill();
+    // 仅绘制视口内瓦片
+    const x0 = Math.max(0, Math.floor(camX / TILE) - 1);
+    const x1 = Math.min(GW - 1, Math.ceil((camX + viewW) / TILE) + 1);
+    const y0 = Math.max(0, Math.floor(camY / TILE) - 1);
+    const y1 = Math.min(GH - 1, Math.ceil((camY + viewH) / TILE) + 1);
+    for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
+      drawTile(grid[y][x], x*TILE - camX, y*TILE - camY);
     }
-    // 交互标记
+    // 交互标记（视口内）
     for(const it of INTERACTIONS){
-      const px = it.x*TILE, py = it.y*TILE;
+      if(it.x < x0-1 || it.x > x1+1 || it.y < y0-1 || it.y > y1+1) continue;
+      const px = it.x*TILE - camX, py = it.y*TILE - camY;
       ctx.save();
       ctx.globalAlpha = .9;
-      ctx.fillStyle = it.type === 'npc' ? '#e0b34a' : '#d4a840';
+      ctx.fillStyle = it.type === 'npc' ? '#e0b34a' : (it.type === 'secret' ? '#9b6bd6' : '#d4a840');
       ctx.beginPath(); ctx.arc(px+TILE/2, py+TILE/2-6, 5, 0, 7); ctx.fill();
       ctx.globalAlpha = .35;
-      ctx.fillStyle = '#d4a840';
+      ctx.fillStyle = it.type === 'secret' ? '#9b6bd6' : '#d4a840';
       ctx.fillRect(px+8, py+TILE-10, TILE-16, 4);
       ctx.restore();
     }
-    // NPC 形象（npc 类型画小人）
+    // NPC 形象（视口内）
     for(const it of INTERACTIONS){
-      if(it.type === 'npc') drawChar(it.x*TILE, it.y*TILE, it.npc === '童子' ? '#6fae84' : '#b8b0d0', 'down', 0);
+      if(it.type !== 'npc') continue;
+      if(it.x < x0-1 || it.x > x1+1 || it.y < y0-1 || it.y > y1+1) continue;
+      drawChar(it.x*TILE - camX, it.y*TILE - camY,
+        it.npc === '童子' ? '#6fae84' : it.npc === '仙子' ? '#e59ad0' : it.npc === '守卫' ? '#c08a5a' : '#b8b0d0', 'down', 0);
     }
     // 玩家
-    drawChar(player.px, player.py, sectColor, player.dir, -player.bob);
+    drawChar(player.px - camX, player.py - camY, sectColor, player.dir, -player.bob);
     // HUD 文字
     hud.textContent = `🧭 ${player.tx},${player.ty}`;
   }
@@ -324,7 +353,7 @@ export function createRPG(container, onInteract){
   function start(){
     if(running) return;
     running = true; last = performance.now();
-    resize(); raf = requestAnimationFrame(frame);
+    resize(); centerCam(true); raf = requestAnimationFrame(frame);
   }
   function stop(){ running = false; if(raf) cancelAnimationFrame(raf); }
   window.addEventListener('resize', () => { if(running) resize(); });
