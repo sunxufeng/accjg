@@ -7,27 +7,27 @@
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
   background: var(--bg-grad); padding: 16px; overflow: auto;
 }
-.onb-scroll { width: min(460px, 96vw); animation: pop .4s ease; }
-.onb-inner { background: var(--paper-2); border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 22px 24px 26px; box-shadow: var(--shadow); }
-.onb-title { font-family: var(--font-title); font-size: 28px; margin: 10px 0 4px; text-align: center; }
-.onb-sub { color: var(--ink-3); text-align: center; font-family: var(--font-sub); margin: 0 0 16px; font-size: 14px; }
-.field-label { display: block; font-family: var(--font-sub); font-size: 14px; margin: 12px 0 6px; color: var(--ink-2); }
-.ink-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); outline: none; }
+.onb-scroll { width: min(420px, 94vw); animation: pop .4s ease; }
+.onb-inner { background: var(--paper-2); border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 18px 20px 22px; box-shadow: var(--shadow); }
+.onb-title { font-family: var(--font-title); font-size: 22px; margin: 8px 0 2px; text-align: center; }
+.onb-sub { color: var(--ink-3); text-align: center; font-family: var(--font-sub); margin: 0 0 12px; font-size: 13px; }
+.field-label { display: block; font-family: var(--font-sub); font-size: 13px; margin: 10px 0 5px; color: var(--ink-2); }
+.ink-input { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: var(--font-body); font-size: 15px; color: var(--ink); outline: none; }
 .ink-input:focus { border-color: var(--vermilion); }
 .field-error { color: var(--vermilion); font-size: 13px; min-height: 16px; margin-top: 4px; }
-.sect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.sect-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; background: var(--paper); transition: transform .12s, border-color .15s; position: relative; }
+.sect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sect-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; background: var(--paper); transition: transform .12s, border-color .15s; position: relative; }
 .sect-card:hover { transform: translateY(-2px); }
 .sect-card.sel { border-color: var(--vermilion); box-shadow: 0 0 0 3px rgba(194,58,43,.15); }
-.sect-card .sect-name { font-family: var(--font-title); font-size: 20px; }
-.sect-card .sect-motto { font-size: 12px; color: var(--ink-3); margin: 4px 0; font-family: var(--font-sub); }
+.sect-card .sect-name { font-family: var(--font-title); font-size: 17px; }
+.sect-card .sect-motto { font-size: 11px; color: var(--ink-3); margin: 3px 0; font-family: var(--font-sub); }
 .sect-card .sect-badge { width: 100%; height: 6px; border-radius: 4px; margin-top: 6px; }
 .sect-card .sect-pick { position: absolute; top: 8px; right: 10px; color: var(--vermilion); font-size: 18px; opacity: 0; }
 .sect-card.sel .sect-pick { opacity: 1; }
-.onb-avatar-wrap { display: flex; gap: 14px; align-items: center; margin: 16px 0; }
-#onb-avatar { width: 96px; height: 96px; border-radius: 12px; image-rendering: pixelated; background: #fff; box-shadow: var(--shadow); flex: none; }
-.onb-sect-desc { font-size: 13px; color: var(--ink-2); font-family: var(--font-sub); line-height: 1.5; }
-#onb-submit { width: 100%; margin-top: 6px; font-size: 18px; padding: 13px; }
+.onb-avatar-wrap { display: flex; gap: 12px; align-items: center; margin: 12px 0; }
+#onb-avatar { width: 80px; height: 80px; border-radius: 12px; image-rendering: pixelated; background: #fff; box-shadow: var(--shadow); flex: none; }
+.onb-sect-desc { font-size: 12px; color: var(--ink-2); font-family: var(--font-sub); line-height: 1.5; }
+#onb-submit { width: 100%; margin-top: 4px; font-size: 16px; padding: 11px; }
 
 /* ---------- 主区域 ---------- */
 .main { flex: 1; overflow-y: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }

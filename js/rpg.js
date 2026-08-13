@@ -57,7 +57,7 @@ export function createRPG(container, onInteract){
   function walkable(x, y){
     if(x < 0 || y < 0 || x >= GW || y >= GH) return false;
     const c = grid[y][x];
-    return c === '.' || c === '=' || c === 'F';
+    return c === '.' || c === '=' || c === 'F' || c === 'T' || c === 'R' || c === 'C' || c === 'P';
   }
 
   function nearestInteract(){
@@ -167,8 +167,11 @@ export function createRPG(container, onInteract){
     ctx.clearRect(0,0,W,H);
     // 背景天空
     const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0, '#1a2740'); g.addColorStop(1, '#0e1626');
+    g.addColorStop(0, '#1a2a44'); g.addColorStop(.4, '#162840'); g.addColorStop(1, '#0e1626');
     ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    // 远山剪影
+    ctx.fillStyle = 'rgba(20,35,55,.5)';
+    ctx.beginPath(); ctx.moveTo(0,H*.45); ctx.lineTo(W*.2,H*.3); ctx.lineTo(W*.4,H*.38); ctx.lineTo(W*.6,H*.28); ctx.lineTo(W*.8,H*.36); ctx.lineTo(W,H*.42); ctx.lineTo(W,H*.45); ctx.closePath(); ctx.fill();
     // 瓦片
     for(let y=0;y<GH;y++) for(let x=0;x<GW;x++){
       drawTile(grid[y][x], x*TILE, y*TILE);
@@ -196,31 +199,105 @@ export function createRPG(container, onInteract){
   }
 
   function drawTile(c, x, y){
-    if(c === '#' || c === 'B'){ drawHouse(x, y, c === 'B'); return; }
+    if(c === '#'){ ctx.fillStyle = '#3a3545'; ctx.fillRect(x, y, TILE, TILE); return; }
+    if(c === 'B' || c === 'b'){ drawHouse(x, y, c === 'B'); return; }
     let base = '#27432f'; // 草
-    if(c === '=') base = '#6b6450';
+    if(c === '=') base = '#7a7258';
     if(c === '~') base = '#2a4a6c';
-    if(c === 'F') base = '#27432f';
+    if(c === 'F') base = '#2a5030';
+    if(c === 'T') base = '#1e4028';
+    if(c === 'R') base = '#6b6860';
+    if(c === 'C') base = '#4a4555';
+    if(c === 'P') base = '#8a7858';
     ctx.fillStyle = base; ctx.fillRect(x, y, TILE, TILE);
-    // 纹理
-    ctx.fillStyle = 'rgba(0,0,0,.12)';
-    if(c === '='){ ctx.fillRect(x, y+TILE/2, TILE, 2); }
-    else if(c === '~'){ ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(x+6, y+10, 10, 2); ctx.fillRect(x+22, y+26, 12, 2); }
-    else if(c === '.'){ ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(x+8, y+10, 4, 4); ctx.fillRect(x+28, y+28, 4, 4); }
-    else if(c === 'F'){ ctx.fillStyle = '#d96a8a'; ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 4, 0, 7); ctx.fill(); ctx.fillStyle='#e8c84a'; ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 2, 0, 7); ctx.fill(); }
+    // 纹理/装饰
+    if(c === '.'){
+      ctx.fillStyle = 'rgba(255,255,255,.05)';
+      ctx.fillRect(x+6,y+8,4,4); ctx.fillRect(x+26,y+22,4,4);
+      ctx.fillRect(x+14,y+30,3,3);
+    }
+    else if(c === '='){
+      ctx.fillStyle = 'rgba(0,0,0,.12)';
+      ctx.fillRect(x, y+TILE/2-1, TILE, 2);
+      // 路边小石子
+      ctx.fillStyle = 'rgba(100,90,80,.3)';
+      ctx.fillRect(x+4, y+TILE-6, 5, 3); ctx.fillRect(x+TILE-10, y+8, 4, 3);
+    }
+    else if(c === '~'){
+      ctx.fillStyle = 'rgba(120,180,220,.18)';
+      ctx.fillRect(x+8, y+8, 14, 2); ctx.fillRect(x+20, y+22, 10, 2);
+      ctx.fillStyle = 'rgba(255,255,255,.1)';
+      ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 8, 0, 7); ctx.fill();
+    }
+    else if(c === 'F'){
+      // 花
+      ctx.fillStyle = '#d96a8a';
+      ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 5, 0, 7); ctx.fill();
+      ctx.fillStyle='#e8c84a';
+      ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 2.5, 0, 7); ctx.fill();
+      // 茎
+      ctx.fillStyle='#3a6a3a';
+      ctx.fillRect(x+TILE/2-1, y+TILE/2+4, 2, TILE/2-6);
+    }
+    else if(c === 'T'){
+      // 树
+      ctx.fillStyle = '#1a3820';
+      ctx.fillRect(x+TILE/2-3, y+TILE-14, 6, 14);
+      // 树冠
+      ctx.fillStyle = '#1a5028';
+      ctx.beginPath(); ctx.arc(x+TILE/2, y+TILE/2, 12, 0, 7); ctx.fill();
+      ctx.fillStyle = '#228833';
+      ctx.beginPath(); ctx.arc(x+TILE/2-3, y+TILE/2-3, 7, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+TILE/2+4, y+TILE/2+2, 6, 0, 7); ctx.fill();
+    }
+    else if(c === 'R'){
+      // 石头
+      ctx.fillStyle = 'rgba(0,0,0,.15)';
+      ctx.beginPath(); ctx.ellipse(x+TILE/2, y+TILE/2+4, 10, 7, .3, 0, 7); ctx.fill();
+      ctx.fillStyle = '#888880';
+      ctx.beginPath(); ctx.ellipse(x+TILE/2, y+TILE/2+2, 9, 6, .3, 0, 7); ctx.fill();
+      ctx.fillStyle = 'aaa9a0';
+      ctx.beginPath(); ctx.ellipse(x+TILE/2-2, y+TILE/2, 4, 3, .2, 0, 7); ctx.fill();
+    }
+    else if(c === 'C'){
+      // 祭坛/碑
+      ctx.fillStyle = '#5a5565';
+      ctx.fillRect(x+8, y+10, TILE-16, TILE-16);
+      ctx.fillStyle = '#d4a840';
+      ctx.fillRect(x+10, y+14, TILE-20, TILE-24);
+      ctx.fillStyle = '#e8c84a';
+      ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('碑', x+TILE/2, y+TILE/2+4);
+    }
+    else if(c === 'P'){
+      // 桥板
+      ctx.fillStyle = '#9a8868';
+      ctx.fillRect(x+2, y+TILE/2-3, TILE-4, 6);
+      ctx.fillStyle = 'rgba(0,0,0,.15)';
+      ctx.fillRect(x+4, y+TILE/2, 4, 2); ctx.fillRect(x+TILE-10, y+TILE/2, 4, 2);
+      // 水面倒影
+      ctx.fillStyle = 'rgba(60,130,180,.2)';
+      ctx.fillRect(x+4, y+TILE/2+5, TILE-8, 4);
+    }
   }
 
   function drawHouse(x, y, isB){
+    const s = isB ? 1 : 0.7; // 小建筑稍矮
     // 墙
-    ctx.fillStyle = isB ? '#caa06a' : '#8a7a55';
-    ctx.fillRect(x+4, y+14, TILE-8, TILE-16);
-    ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(x+4, y+14, TILE-8, 4);
+    ctx.fillStyle = isB ? '#caa06a' : '#a09070';
+    ctx.fillRect(x+4, y+14*s, TILE-8, (TILE-16)*s);
+    ctx.fillStyle = 'rgba(0,0,0,.1)'; ctx.fillRect(x+4, y+14*s, TILE-8, 3);
     // 屋顶
-    ctx.fillStyle = isB ? '#9c3b2e' : '#6f3b2e';
-    ctx.beginPath(); ctx.moveTo(x, y+16); ctx.lineTo(x+TILE/2, y+2); ctx.lineTo(x+TILE, y+16); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = isB ? '#9c3b2e' : '#8a4535';
+    ctx.beginPath(); ctx.moveTo(x, y+16*s); ctx.lineTo(x+TILE/2, y+2); ctx.lineTo(x+TILE, y+16*s); ctx.closePath(); ctx.fill();
     // 门
-    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(x+TILE/2-6, y+TILE-12, 12, 12);
-    if(isB){ ctx.fillStyle = '#e8c84a'; ctx.fillRect(x+TILE/2-2, y+TILE-8, 4, 4); }
+    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(x+TILE/2-5, y+TILE-12*s, 10, 11*s);
+    if(isB){ ctx.fillStyle = '#e8c84a'; ctx.fillRect(x+TILE/2-2, y+TILE-9*s, 4, 4); }
+    else {
+      // 小建筑窗户
+      ctx.fillStyle = 'rgba(180,200,220,.5)';
+      ctx.fillRect(x+7, y+18*s, 6, 6); ctx.fillRect(x+TILE-13, y+18*s, 6, 6);
+    }
   }
 
   function drawChar(px, py, robe, dir, bob){

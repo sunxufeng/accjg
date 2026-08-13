@@ -520,7 +520,7 @@ export const LIBRARY = [
     summary: '收录学生与 AI 协作学习的真实对话范例：答疑、 brainstorming、复盘，附点评。' }
 ];
 
-// ---------- 技能树（4 维 × 4~5 节点） ----------
+// ---------- 技能树（4 维 × 5 节点 + 4 跨维绝学） ----------
 // cost: 灵气；prereq: 前置节点 id（同维）
 export const SKILLS = [
   // 算法认知
@@ -532,6 +532,8 @@ export const SKILLS = [
     desc: '理解神经元与层次，解锁"化神"专属题库。', bonus: '解锁高阶题库' },
   { id: 's_a4', dim: 'algorithm', name: '模型之眼', cost: 120, prereq: 's_a3',
     desc: '看懂过拟合与泛化，每日一问正确灵气 +12。', bonus: '每日灵气 +12' },
+  { id: 's_a5', dim: 'algorithm', name: '算道通玄', cost: 200, prereq: 's_a4',
+    desc: '融会贯通算法全貌，所有答题修为额外 +25%。', bonus: '全答题修为 +25%' },
   // 数据素养
   { id: 's_d1', dim: 'data', name: '格物致知', cost: 30, prereq: null,
     desc: '建立数据意识，每日一问修为 +5%。', bonus: '每日修为 +5%' },
@@ -541,6 +543,8 @@ export const SKILLS = [
     desc: '识破信息茧房，论道评分 +10%。', bonus: '论道 +10%' },
   { id: 's_d4', dim: 'data', name: '数据守门', cost: 120, prereq: 's_d3',
     desc: '守护隐私，所有灵气获取 +10%。', bonus: '全灵气 +10%' },
+  { id: 's_d5', dim: 'data', name: '数海通鉴', cost: 200, prereq: 's_d4',
+    desc: '洞察数据全貌，每次阅读典籍额外获顿悟 +3。', bonus: '典籍顿悟 +3' },
   // 伦理安全
   { id: 's_e1', dim: 'ethics', name: '明辨幻象', cost: 30, prereq: null,
     desc: '识破 AI 幻觉，答题正确额外灵气 +6。', bonus: '正确灵气 +6' },
@@ -550,6 +554,8 @@ export const SKILLS = [
     desc: '衡量 AI 影响，成就进度加速。', bonus: '成就加速' },
   { id: 's_e4', dim: 'ethics', name: '公平之道', cost: 120, prereq: 's_e3',
     desc: '推动算法公平，社群贡献 +15%。', bonus: '社群贡献 +15%' },
+  { id: 's_e5', dim: 'ethics', name: '伦理宗师', cost: 200, prereq: 's_e4',
+    desc: '以德服人，连续修行天数加成翻倍（×2）。', bonus: '连续加成 ×2' },
   // 应用创造
   { id: 's_p1', dim: 'apply', name: '善问之术', cost: 30, prereq: null,
     desc: '写好提示词，论道基础分 +10。', bonus: '论道基础 +10' },
@@ -558,7 +564,22 @@ export const SKILLS = [
   { id: 's_p3', dim: 'apply', name: '智能体驭使', cost: 80, prereq: 's_p2',
     desc: '调度 AI Agent，每日一问修为 +10%。', bonus: '每日修为 +10%' },
   { id: 's_p4', dim: 'apply', name: '格物致用', cost: 120, prereq: 's_p3',
-    desc: '融会贯通，全修为获取 +10%。', bonus: '全修为 +10%' }
+    desc: '融会贯通，全修为获取 +10%。', bonus: '全修为 +10%' },
+  { id: 's_p5', dim: 'apply', name: '创世之手', cost: 200, prereq: 's_p4',
+    desc: '驾驭 AI 创造之力，论道最高分额外奖励灵气 +30。', bonus: '论道满分奖 +30灵气' },
+  // —— 跨维绝学（需两个维度各满 3 节点） ——
+  { id: 's_x1', dim: 'algorithm', name: '智数合一', cost: 250, prereq: 's_a3',
+    desc: '【跨维】算法与数据融合，答题+思辨双倍经验。需先解锁 s_d3。',
+    bonus: '答题/思辨 ×2', crossReq: ['s_d3'] },
+  { id: 's_x2', dim: 'ethics', name: '德术并重', cost: 250, prereq: 's_e3',
+    desc: '【跨维】伦理与应用兼顾，论道不扣分且评分 +20%。需先解锁 s_p3。',
+    bonus: '论道保底+20%', crossReq: ['s_p3'] },
+  { id: 's_x3', dim: 'data', name: '数伦同源', cost: 250, prereq: 's_d3',
+    desc: '【跨维】数据与伦理贯通，隐私保护下数据收益 +25%。需先解锁 s_e3。',
+    bonus: '安全数据收益 +25%', crossReq: ['s_e3'] },
+  { id: 's_x4', dim: 'apply', name: '算用通神', cost: 300, prereq: 's_p4',
+    desc: '【跨维】算法与应用合一，全技能效果 +15%。需先解锁 s_a4。',
+    bonus: '全技能 +15%', crossReq: ['s_a4'] }
 ];
 
 export const DIM_META = {
@@ -599,35 +620,53 @@ export const TASKS = [
 ];
 
 // ---------- RPG 地图 ----------
-// 图例: # 建筑/障碍  ~ 水  = 路  . 草  F 花(可走装饰) 空格=草
+// 图例: # 墙/边界  B 建筑(大)  b 建筑(小)  ~ 水  = 路/桥  . 草地
+//       T 树(可走装饰)  F 花(可走)  R 石头(可走)  C 祭坛/碑  P 桥板
 export const MAP_ROWS = [
-  '########################',
-  '#......................#',
-  '#..BB....FF....FF..BB..#',
-  '#..BB............BB....#',
-  '#..==....~~~~....==....#',
-  '#..==....~~~~....==....#',
-  '#..==....~~~~....==....#',
-  '#..====================#',
-  '#..==..........==.....#',
-  '#..BB....FF....FF.BB...#',
-  '#..BB............BB....#',
-  '#......................#',
-  '#......................#',
-  '########################'
+  '####################################',
+  '#......BB..........BB..............#',
+  '#......BB..........BB..TT.........#',
+  '#........................TT.......#',
+  '#..==...~~~~~~....==.....b........#',
+  '#..==...~~~~~~....==.....b........#',
+  '#..==...~~PP~~....==..FF..FF......#',
+  '#..==...~~~~~~....==..FF..FF......#',
+  '#..========================b......#',
+  '#..==........T.T......==.........#',
+  '#..BB....FF..FF..FF...BB..R..R...#',
+  '#..BB.................BB.........#',
+  '#......T.........T........T.......#',
+  '#...................C............#',
+  '#..b...................b...T.....#',
+  '#...........................T....#',
+  '#........R..R....................#',
+  '#......T.......T...........T.....#',
+  '#................................#',
+  '####################################'
 ];
 // 瓦片尺寸（像素）
-export const TILE = 44;
+export const TILE = 40;
 // 交互点（坐标为瓦片格）：type 决定触发内容
 export const INTERACTIONS = [
+  // —— 北区建筑群 ——
   { x: 3,  y: 2,  type: 'task',    label: '任务堂' },
-  { x: 20, y: 2,  type: 'lundao', label: '论道台' },
-  { x: 3,  y: 9,  type: 'reading', label: '藏经阁' },
-  { x: 20, y: 9,  type: 'library', label: '文献阁' },
-  { x: 11, y: 7,  type: 'daily',   label: '每日一问碑' },
-  { x: 15, y: 4,  type: 'quiz',    label: '参悟点·算法' },
-  { x: 7,  y: 11, type: 'quiz',    label: '参悟点·数据' },
-  { x: 16, y: 11, type: 'npc',     label: '游方道人', npc: '老者' },
-  { x: 9,  y: 11, type: 'npc',     label: '机巧童子', npc: '童子' }
+  { x: 17, y: 2,  type: 'lundao', label: '论道台' },
+  // —— 南区建筑群 ——
+  { x: 3,  y: 11, type: 'reading', label: '藏经阁' },
+  { x: 21, y: 11, type: 'library', label: '文献阁' },
+  // —— 中央区域 ——
+  { x: 13, y: 8,  type: 'daily',   label: '每日一问碑' },
+  { x: 8,  y: 6,  type: 'quiz',    label: '参悟点·算法' },
+  { x: 19, y: 5,  type: 'quiz',    label: '参悟点·数据' },
+  { x: 7,  y: 15, type: 'quiz',    label: '参悟点·伦理' },
+  { x: 23, y: 15, type: 'quiz',    label: '参悟点·应用' },
+  // —— NPC ——
+  { x: 15, y: 17, type: 'npc',     label: '游方道人', npc: '老者' },
+  { x: 9,  y: 17, type: 'npc',     label: '机巧童子', npc: '童子' },
+  { x: 27, y: 8,  type: 'npc',     label: '藏书长老', npc: '老者' },
+  { x: 4,  y: 16, type: 'npc',     label: '论道仙师', npc: '仙师' },
+  // —— 装饰性交互（彩蛋） ——
+  { x: 12, y: 13, type: 'secret',  label: '隐秘石碑' },
+  { x: 26, y: 17, type: 'secret',  label: '古井' }
 ];
-export const PLAYER_START = { x: 11, y: 11 };
+export const PLAYER_START = { x: 13, y: 17 };
