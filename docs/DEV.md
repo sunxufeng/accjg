@@ -76,35 +76,40 @@ python3 -m http.server 8080   # 或 npx serve
 
 ---
 
-## 6. 部署（生产）
+## 6. 部署（生产）— 实际方案
 
-目标：116.62.188.165，域名 accjg.areteailab.com，Nginx 托管静态文件。
+目标：116.62.188.165，域名 accjg.areteailab.com。
+
+实际服务器环境：80 端口由 **Nginx Proxy Manager（NPM，`jc21/nginx-proxy-manager`，docker 容器 `nginx-app`）** 接管，所有对外站点均经 NPM 反代。宿主机自带 nginx 未实际监听（端口被 docker-proxy 占用），故采用「宿主机静态服务 + NPM 反代」方案。
 
 ```bash
-# 本地构建产物即 accjg/ 根目录（静态）
-rsync -az --delete ./ root@116.62.188.165:/var/www/accjg/
+# 1) 上传静态产物（宿主机 /var/www/accjg）
+tar czf - --exclude=.git . | ssh root@116.62.188.165 "mkdir -p /var/www/accjg && tar xzf - -C /var/www/accjg"
 
-# 服务端（root@116.62.188.165, 密码 season69130!）
-# 1) 安装 nginx（若未装）
-# 2) 写入 /etc/nginx/conf.d/accjg.conf：
-server {
-  listen 80;
-  server_name accjg.areteailab.com;
-  root /var/www/accjg;
-  index index.html;
-  location / { try_files $uri $uri/ /index.html; }
-  gzip on;
-}
-# 3) nginx -t && systemctl reload nginx
-# 4) 域名解析 A 记录指向 116.62.188.165（在域名控制台配置）
+# 2) 宿主机用 systemd 启动静态服务（Python3.6 无 --directory，靠 WorkingDirectory）
+#    /etc/systemd/system/accjg.service：
+#    ExecStart=/usr/bin/python3 -m http.server 8099 --bind 0.0.0.0
+#    WorkingDirectory=/var/www/accjg
+systemctl daemon-reload && systemctl enable --now accjg.service
+
+# 3) 在 NPM 的 proxy_host 配置（宿主机路径：
+#    /clouddream/nginx-proxy-manage/data/nginx/proxy_host/accjg.conf）加入：
+#    server { set $forward_scheme http; set $server "172.17.0.1"; set $port 8099;
+#             listen 80; server_name accjg.areteailab.com;
+#             location / { include conf.d/include/proxy.conf; } }
+#    容器内执行：docker exec nginx-app nginx -s reload
+
+# 4) 域名 A 记录已生效：accjg.areteailab.com -> 116.62.188.165（实测解析正常）
 ```
 
-HTTPS（可选）：`certbot --nginx -d accjg.areteailab.com`。
+访问：http://accjg.areteailab.com （实测 HTTP 200，页面/资源均正常）
+
+> 注：当前为 HTTP。如需 HTTPS，可在 NPM 面板为该 Proxy Host 申请 Let's Encrypt 证书（force SSL）。
 
 ---
 
 ## 7. 风险与 todo
 
-- 域名 A 记录需用户在 DNS 控制台配置（我方无法改 DNS）。
-- 服务器 SSH 可达性需在部署阶段实测；不可达则回退为本地构建产物交付 + 部署说明。
 - 内容准确性需教研复核（见 PRD §9）。
+- HTTPS 为可选项，待用户在 NPM 申请证书后开启。
+- 宿主机 nginx 与 NPM 共存：不要改宿主机 `/etc/nginx/conf.d/accjg.conf`（未被外部流量使用），以 NPM proxy_host 为准。
