@@ -215,11 +215,18 @@ export function createRPG(container, onInteract){
       ctx.restore();
     }
     // NPC 形象（视口内）
+    const tnow = performance.now() / 700;
     for(const it of INTERACTIONS){
       if(it.type !== 'npc') continue;
       if(it.x < x0-1 || it.x > x1+1 || it.y < y0-1 || it.y > y1+1) continue;
-      drawChar(it.x*TILE - camX, it.y*TILE - camY,
-        it.npc === '童子' ? '#6fae84' : it.npc === '仙子' ? '#e59ad0' : it.npc === '守卫' ? '#c08a5a' : '#b8b0d0', 'down', 0);
+      const robe = it.npc === '童子' ? '#6fae84'
+                 : it.npc === '仙子' ? '#e59ad0'
+                 : it.npc === '守卫' ? '#b07a4a'
+                 : it.npc === '老者' ? '#9a8fb0'
+                 : it.npc === '仙师' ? '#7a6cc0'
+                 : '#b8b0d0';
+      const float = Math.sin(tnow + (it.x*0.7 + it.y*1.3)) * 1.4;
+      drawChar(it.x*TILE - camX, it.y*TILE - camY, robe, 'down', float, it.npc);
     }
     // 玩家
     drawChar(player.px - camX, player.py - camY, sectColor, player.dir, -player.bob);
@@ -329,25 +336,139 @@ export function createRPG(container, onInteract){
     }
   }
 
-  function drawChar(px, py, robe, dir, bob){
-    const cx = px + TILE/2, feet = py + TILE - 4 + bob;
+  function drawChar(px, py, robe, dir, bob, kind){
+    const cx = px + TILE/2;
+    const base = py + TILE - 4;
+    const feet = base + bob;
+    const isChild = kind === '童子';
+    const isFairy = kind === '仙子';
+    const isGuard = kind === '守卫';
+    const isElder = kind === '老者';
+    const isMaster = kind === '仙师';
+    const sc = isChild ? 0.84 : 1;
+    const headR = 7 * sc;
+    const bodyTop = feet - 25 * sc;
+    const bodyBot = feet - 8;
+    const halfTop = 8.5 * sc, halfBot = 11 * sc;
+
     // 影子
-    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(cx, py+TILE-2, 11, 4, 0, 0, 7); ctx.fill();
-    // 腿
-    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(cx-6, feet-10, 4, 10); ctx.fillRect(cx+2, feet-10, 4, 10);
-    // 袍
-    ctx.fillStyle = robe; ctx.fillRect(cx-8, feet-22, 16, 14);
-    ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.fillRect(cx-8, feet-22, 16, 3);
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.beginPath(); ctx.ellipse(cx, base + 2, 12 * sc, 4.5, 0, 0, 7); ctx.fill();
+
+    // 腿 / 靴
+    ctx.fillStyle = '#2e2118';
+    ctx.fillRect(cx - 5, bodyBot - 1, 3.6, 9);
+    ctx.fillRect(cx + 1.4, bodyBot - 1, 3.6, 9);
+
+    // 袍身（梯形 + 渐变）
+    const grad = ctx.createLinearGradient(0, bodyTop, 0, bodyBot);
+    grad.addColorStop(0, shade(robe, 28));
+    grad.addColorStop(1, shade(robe, -12));
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(cx - halfTop, bodyTop + 3);
+    ctx.lineTo(cx + halfTop, bodyTop + 3);
+    ctx.lineTo(cx + halfBot, bodyBot);
+    ctx.lineTo(cx - halfBot, bodyBot);
+    ctx.closePath(); ctx.fill();
+    // 衣领高光
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.beginPath();
+    ctx.moveTo(cx - halfTop, bodyTop + 3);
+    ctx.lineTo(cx + halfTop, bodyTop + 3);
+    ctx.lineTo(cx + 3, bodyTop + 9);
+    ctx.lineTo(cx - 3, bodyTop + 9);
+    ctx.closePath(); ctx.fill();
+
+    // 袖子
+    ctx.fillStyle = shade(robe, -6);
+    ctx.beginPath(); ctx.ellipse(cx - halfBot + 1, bodyTop + 12*sc, 4*sc, 7*sc, .2, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + halfBot - 1, bodyTop + 12*sc, 4*sc, 7*sc, -.2, 0, 7); ctx.fill();
+
+    // 腰带
+    ctx.fillStyle = isGuard ? '#caa84a' : shade(robe, 38);
+    ctx.fillRect(cx - halfTop, bodyTop + 11*sc, halfTop*2, 3.2);
+
+    // 守卫铠甲护肩
+    if(isGuard){
+      ctx.fillStyle = '#9aa0a8';
+      ctx.beginPath(); ctx.arc(cx - halfTop, bodyTop + 4, 4.5, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + halfTop, bodyTop + 4, 4.5, 0, 7); ctx.fill();
+      ctx.fillStyle = '#6f757d';
+      ctx.fillRect(cx - halfTop - 1, bodyTop + 3, 2, 6);
+      ctx.fillRect(cx + halfTop - 1, bodyTop + 3, 2, 6);
+    }
+
     // 头
-    ctx.fillStyle = '#e8c9a0'; ctx.beginPath(); ctx.arc(cx, feet-28, 7, 0, 7); ctx.fill();
-    // 发/冠
-    ctx.fillStyle = '#2a2018'; ctx.fillRect(cx-7, feet-34, 14, 5);
-    // 眼睛朝向
-    ctx.fillStyle = '#1a1a1a';
-    if(dir === 'down'){ ctx.fillRect(cx-3, feet-28, 2, 2); ctx.fillRect(cx+1, feet-28, 2, 2); }
-    else if(dir === 'up'){ /* 后脑 */ }
-    else if(dir === 'left'){ ctx.fillRect(cx-4, feet-28, 2, 2); }
-    else if(dir === 'right'){ ctx.fillRect(cx+2, feet-28, 2, 2); }
+    const skin = isElder ? '#e8d2b8' : '#f1d4b2';
+    ctx.fillStyle = skin;
+    ctx.beginPath(); ctx.arc(cx, bodyTop - 1, headR, 0, 7); ctx.fill();
+    // 脸颊腮红
+    if(isFairy || isChild){
+      ctx.fillStyle = 'rgba(230,120,150,.35)';
+      ctx.beginPath(); ctx.arc(cx - 4, bodyTop + 1, 2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 4, bodyTop + 1, 2, 0, 7); ctx.fill();
+    }
+    // 胡子（老者）
+    if(isElder){
+      ctx.fillStyle = '#d8d2c8';
+      ctx.fillRect(cx - 3, bodyTop + 3, 6, 5);
+      ctx.fillRect(cx - 1.5, bodyTop + 6, 3, 4);
+    }
+
+    // 头发 / 冠 / 饰
+    ctx.fillStyle = isElder ? '#cfc9bf' : '#2a2018';
+    if(isChild){
+      // 双髻
+      ctx.beginPath(); ctx.arc(cx - 5, bodyTop - headR, 3.2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 5, bodyTop - headR, 3.2, 0, 7); ctx.fill();
+      ctx.fillRect(cx - headR, bodyTop - headR*0.4, headR*2, 3);
+    } else if(isFairy){
+      // 发髻 + 花饰
+      ctx.fillRect(cx - headR, bodyTop - headR*0.5, headR*2, 3);
+      ctx.beginPath(); ctx.arc(cx, bodyTop - headR - 1, 3.4, 0, 7); ctx.fill();
+      ctx.fillStyle = '#e87aa8';
+      ctx.beginPath(); ctx.arc(cx + 5, bodyTop - headR - 2, 2.4, 0, 7); ctx.fill();
+      ctx.fillStyle = '#f4c542';
+      ctx.beginPath(); ctx.arc(cx + 5, bodyTop - headR - 2, 1, 0, 7); ctx.fill();
+    } else if(isGuard){
+      // 头盔
+      ctx.fillStyle = '#8a9098';
+      ctx.beginPath(); ctx.arc(cx, bodyTop - 1, headR + 0.5, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = '#caa84a';
+      ctx.fillRect(cx - 1, bodyTop - headR - 5, 2, 5);
+    } else if(isMaster){
+      // 道冠
+      ctx.fillRect(cx - headR, bodyTop - headR*0.5, headR*2, 3);
+      ctx.fillStyle = '#3a2a4a';
+      ctx.fillRect(cx - 3, bodyTop - headR - 3, 6, 4);
+    } else {
+      // 普通发髻
+      ctx.fillRect(cx - headR, bodyTop - headR*0.5, headR*2, 3);
+      ctx.beginPath(); ctx.arc(cx, bodyTop - headR, 3, 0, 7); ctx.fill();
+    }
+
+    // 眼睛（朝向）
+    ctx.fillStyle = '#2a2018';
+    if(dir === 'down'){
+      ctx.fillRect(cx - 3.2, bodyTop - 1, 1.8, 2.2);
+      ctx.fillRect(cx + 1.4, bodyTop - 1, 1.8, 2.2);
+    } else if(dir === 'left'){
+      ctx.fillRect(cx - 4, bodyTop - 1, 1.8, 2.2);
+    } else if(dir === 'right'){
+      ctx.fillRect(cx + 2.2, bodyTop - 1, 1.8, 2.2);
+    }
+  }
+
+  // 颜色明暗调整
+  function shade(hex, amt){
+    let h = hex.replace('#','');
+    if(h.length === 3) h = h.split('').map(c=>c+c).join('');
+    let r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    r = Math.max(0, Math.min(255, r + amt));
+    g = Math.max(0, Math.min(255, g + amt));
+    b = Math.max(0, Math.min(255, b + amt));
+    return `rgb(${r},${g},${b})`;
   }
 
   function start(){

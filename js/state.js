@@ -193,6 +193,7 @@ export function unlockSkill(id){
   const sk = SKILLS.find(s=>s.id===id);
   if(!sk || state.skills[id]) return false;
   if(sk.prereq && !state.skills[sk.prereq]) return false;
+  if(sk.crossReq && !sk.crossReq.every(r => state.skills[r])) return false;
   if(state.spirit < sk.cost) return false;
   state.spirit -= sk.cost;
   state.skills[id] = true;

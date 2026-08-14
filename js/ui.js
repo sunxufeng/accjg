@@ -191,6 +191,14 @@ function taskComputed(id){
   else if(id === 't4') done = !!s.tasks['__lib'];
   else if(id === 't5') done = (s.stats.lundao||0) >= 1;
   else if(id === 't6') done = Object.values(s.skills).some(Boolean);
+  else if(id === 't7') done = (s.tasks.__npcSet || []).length >= 1;
+  else if(id === 't8') done = Object.keys(s.secrets || {}).length >= 1;
+  else if(id === 't9') done = (s.tasks.__quizCount || 0) >= 2;
+  else if(id === 't10') done = READINGS.every(r => s.reading[r.id]);
+  else if(id === 't11') done = Object.values(s.skills).filter(Boolean).length >= 3;
+  else if(id === 't12') done = (s.stats.lundao || 0) >= 3;
+  else if(id === 't13') done = Object.keys(s.secrets || {}).length >= 3;
+  else if(id === 't14') done = (s.tasks.__npcSet || []).length >= 3;
   return done ? 'done' : 'none';
 }
 function renderTasks(){
@@ -235,7 +243,7 @@ function renderTasks(){
   draw('主线');
 }
 function gotoTaskTarget(target){
-  const map = { daily:openDaily, reading:()=>showView('reading'), library:()=>showView('library'), quiz:openQuiz, lundao:openLundao, skill:()=>showView('skills'), task:()=>showView('tasks') };
+  const map = { daily:openDaily, reading:()=>showView('reading'), library:()=>showView('library'), quiz:openQuiz, lundao:openLundao, skill:()=>showView('skills'), task:()=>showView('tasks'), npc:enterMap, secret:enterMap };
   (map[target] || (()=>showView('home')))();
 }
 
@@ -254,17 +262,21 @@ function renderSkills(){
     grid.innerHTML = '';
     SKILLS.filter(sk => sk.dim === dim).forEach(sk => {
       const unlocked = !!s.skills[sk.id];
-      const preok = !sk.prereq || s.skills[sk.prereq];
-      const node = el('div', 'skill-node ' + (unlocked?'unlocked':(preok?'':'locked')));
+      const preok = (!sk.prereq || s.skills[sk.prereq]);
+      const crossOk = !sk.crossReq || sk.crossReq.every(r => s.skills[r]);
+      const crossNames = sk.crossReq ? sk.crossReq.map(r => (SKILLS.find(x=>x.id===r)||{}).name || r).join('、') : '';
+      const node = el('div', 'skill-node ' + (unlocked?'unlocked':(preok&&crossOk?'':'locked')));
       node.innerHTML = `
         <span class="sn-seal">✓</span>
         <div class="sn-name">${esc(sk.name)}</div>
         <div class="sn-desc">${esc(sk.desc)}</div>
         <div class="sn-bonus">加成：${esc(sk.bonus)}</div>
+        ${sk.crossReq ? `<div class="sn-cross">跨维需：${esc(crossNames)}</div>` : ''}
         <div class="sn-cost">灵气 ${sk.cost}</div>`;
       if(!unlocked){
-        const b = el('button', 'btn-brush sn-unlock', preok ? '解锁' : '需前置');
-        b.disabled = !preok || s.spirit < sk.cost;
+        const lockMsg = !preok ? '需前置' : (!crossOk ? '需跨维' : '解锁');
+        const b = el('button', 'btn-brush sn-unlock', lockMsg);
+        b.disabled = !(preok && crossOk) || s.spirit < sk.cost;
         b.onclick = () => {
           if(unlockSkill(sk.id)){ toast('神通点亮：'+sk.name); renderSkills(); renderHUD(); }
           else toast('灵气不足或前置未解锁');
@@ -326,6 +338,7 @@ function openQuiz(){
       let sp = 0;
       if(correct){ sp = 12 + (skillBonus('s_a2')?8:0); addSpirit(sp); }
       setTaskStatus('__quiz','done');
+      const stq = getState(); stq.tasks.__quizCount = (stq.tasks.__quizCount || 0) + 1; save();
       toast(correct ? `修为 +${eg} 灵气 +${sp}` : `修为 +${eg}`);
       renderHUD();
     });
@@ -525,7 +538,14 @@ function openNpc(it){
     </div>`, onMount(m){
     let i = 0; const txt = m.querySelector('#npc-text'), next = m.querySelector('#npc-next');
     txt.textContent = lines[0];
-    next.onclick = () => { i++; if(i < lines.length) txt.textContent = lines[i]; else { closeModal(); toast('与'+it.label+'论道愉快'); } };
+    next.onclick = () => { i++; if(i < lines.length) txt.textContent = lines[i];
+      else {
+        const stt = getState();
+        const set = stt.tasks.__npcSet || [];
+        if(!set.includes(it.label)) set.push(it.label);
+        stt.tasks.__npcSet = set; stt.tasks.__npc = 'done'; save();
+        closeModal(); toast('与'+it.label+'论道愉快');
+      } };
   }});
 }
 
